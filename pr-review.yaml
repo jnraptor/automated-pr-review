@@ -1,0 +1,40 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - "*"
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: UseNode@1
+  inputs:
+    version: '18.x'
+
+- script: npm install
+  displayName: 'Install Node.js Dependencies'
+
+- script: dotnet build --configuration Release
+  displayName: 'Build .NET Solution'
+
+- script: dotnet test --configuration Release --no-build
+  displayName: 'Run Tests'
+
+# Automated Code Review Node Script
+- script: |
+    node tools/automated-review.js
+  displayName: 'Run Automated Code Review and Post PR Comment'
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    COLLECTION_URI: $(System.CollectionUri)
+    TEAM_PROJECT: $(System.TeamProject)
+    REPO_NAME: $(Build.Repository.Name)
+    PR_ID: $(System.PullRequest.PullRequestId)
