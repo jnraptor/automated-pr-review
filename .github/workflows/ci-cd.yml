@@ -37,7 +37,7 @@ jobs:
       run: npm run lint || echo "No lint script found, skipping..."
     
     - name: Run tests
-      run: npm test
+      run: npx jest --coverage
     
     - name: Upload coverage reports
       if: matrix.node-version == '22.x'
