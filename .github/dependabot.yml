@@ -12,17 +12,13 @@ updates:
       time: "09:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 10
-    reviewers:
-      - "jnraptor"
-    assignees:
-      - "jnraptor"
     commit-message:
       prefix: "deps"
       prefix-development: "deps-dev"
       include: "scope"
     labels:
       - "dependencies"
-      - "automated"
+      - "npm"
     # Group related updates together
     groups:
       typescript-ecosystem:
@@ -61,13 +57,6 @@ updates:
       time: "09:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    reviewers:
-      - "jnraptor"
-    assignees:
-      - "jnraptor"
     commit-message:
       prefix: "ci"
       include: "scope"
-    labels:
-      - "github-actions"
-      - "automated"
