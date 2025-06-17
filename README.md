@@ -1,5 +1,7 @@
 # Automated PR Review for Azure DevOps
 
+[![codecov](https://codecov.io/gh/jnraptor/automated-pr-review/graph/badge.svg?token=5KAOG6FW4N)](https://codecov.io/gh/jnraptor/automated-pr-review)
+
 This project provides an automated code review system for Azure DevOps pull requests using Claude AI. It integrates with Azure DevOps pipelines to automatically review code changes and post feedback as PR comments.
 
 ## Features
