@@ -21,12 +21,24 @@ export class GitUtils {
       // Ensure we have the latest refs
       await this.git.fetch(['origin']);
       
-      // Generate unified diff
-      const diffCommand = [
-        `origin/${targetBranch}...origin/${sourceBranch}`,
-        '--unified=3',
-        '--no-color'
-      ];
+      // For pull requests, we need to handle the source branch differently
+      let diffCommand: string[];
+      
+      if (sourceBranch.includes('refs/pull/')) {
+        // For pull request branches, use the full ref
+        diffCommand = [
+          `origin/${targetBranch}...${sourceBranch}`,
+          '--unified=3',
+          '--no-color'
+        ];
+      } else {
+        // For regular branches, use the standard format
+        diffCommand = [
+          `origin/${targetBranch}...origin/${sourceBranch}`,
+          '--unified=3',
+          '--no-color'
+        ];
+      }
       
       const diff = await this.git.diff(diffCommand);
       
@@ -52,23 +64,39 @@ export class GitUtils {
       
       console.log(`Getting changed files between ${targetBranch} and ${sourceBranch}`);
       
+      // For pull requests, we need to handle the source branch differently
+      // The source branch might be a pull request reference that doesn't exist as a remote branch
+      let diffCommand: string[];
+      
+      if (sourceBranch.includes('refs/pull/')) {
+        // For pull request branches, use the full ref
+        diffCommand = [
+          `origin/${targetBranch}...${sourceBranch}`
+        ];
+      } else {
+        // For regular branches, use the standard format
+        diffCommand = [
+          `origin/${targetBranch}...origin/${sourceBranch}`
+        ];
+      }
+      
       // Get diff summary
-      const diffSummary = await this.git.diffSummary([
-        `origin/${targetBranch}...origin/${sourceBranch}`
-      ]);
+      const diffSummary = await this.git.diffSummary(diffCommand);
       
       const files: GitDiffFile[] = [];
       
       for (const file of diffSummary.files) {
         try {
-          // Get individual file diff
-          const fileDiff = await this.git.diff([
-            `origin/${targetBranch}...origin/${sourceBranch}`,
+          // Get individual file diff with the same command format
+          const fileDiffCommand = [
+            ...diffCommand,
             '--unified=3',
             '--no-color',
             '--',
             file.file
-          ]);
+          ];
+          
+          const fileDiff = await this.git.diff(fileDiffCommand);
           
           // Determine file status and get insertions/deletions safely
           let status: GitDiffFile['status'] = 'modified';
