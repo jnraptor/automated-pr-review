@@ -21,26 +21,39 @@ export class GitUtils {
       // Ensure we have the latest refs
       await this.git.fetch(['origin']);
       
-      // For pull requests, we need to handle the source branch differently
-      let diffCommand: string[];
-      
+      // For pull requests, we need to fetch the PR reference first
       if (sourceBranch.includes('refs/pull/')) {
-        // For pull request branches, use the full ref
-        diffCommand = [
-          `origin/${targetBranch}...${sourceBranch}`,
-          '--unified=3',
-          '--no-color'
-        ];
-      } else {
-        // For regular branches, use the standard format
-        diffCommand = [
-          `origin/${targetBranch}...origin/${sourceBranch}`,
-          '--unified=3',
-          '--no-color'
-        ];
+        // Extract PR number from the ref
+        const prMatch = sourceBranch.match(/refs\/pull\/(\d+)\/merge/);
+        if (prMatch) {
+          const prNumber = prMatch[1];
+          console.log(`Fetching pull request ${prNumber} from origin`);
+          
+          // Fetch the pull request reference
+          await this.git.fetch(['origin', `refs/pull/${prNumber}/merge:refs/remotes/origin/pull/${prNumber}/merge`]);
+          
+          // Use the fetched reference
+          const diff = await this.git.diff([
+            `origin/${targetBranch}...refs/remotes/origin/pull/${prNumber}/merge`,
+            '--unified=3',
+            '--no-color'
+          ]);
+          
+          if (!diff || diff.trim().length === 0) {
+            throw new Error('No differences found between branches');
+          }
+          
+          console.log(`Generated diff: ${diff.length} characters`);
+          return diff;
+        }
       }
       
-      const diff = await this.git.diff(diffCommand);
+      // For regular branches, use the standard format
+      const diff = await this.git.diff([
+        `origin/${targetBranch}...origin/${sourceBranch}`,
+        '--unified=3',
+        '--no-color'
+      ]);
       
       if (!diff || diff.trim().length === 0) {
         throw new Error('No differences found between branches');
@@ -64,15 +77,29 @@ export class GitUtils {
       
       console.log(`Getting changed files between ${targetBranch} and ${sourceBranch}`);
       
-      // For pull requests, we need to handle the source branch differently
-      // The source branch might be a pull request reference that doesn't exist as a remote branch
+      // Ensure we have the latest refs
+      await this.git.fetch(['origin']);
+      
+      // For pull requests, we need to fetch the PR reference first
       let diffCommand: string[];
       
       if (sourceBranch.includes('refs/pull/')) {
-        // For pull request branches, use the full ref
-        diffCommand = [
-          `origin/${targetBranch}...${sourceBranch}`
-        ];
+        // Extract PR number from the ref
+        const prMatch = sourceBranch.match(/refs\/pull\/(\d+)\/merge/);
+        if (prMatch) {
+          const prNumber = prMatch[1];
+          console.log(`Fetching pull request ${prNumber} from origin`);
+          
+          // Fetch the pull request reference
+          await this.git.fetch(['origin', `refs/pull/${prNumber}/merge:refs/remotes/origin/pull/${prNumber}/merge`]);
+          
+          // Use the fetched reference
+          diffCommand = [
+            `origin/${targetBranch}...refs/remotes/origin/pull/${prNumber}/merge`
+          ];
+        } else {
+          throw new Error(`Invalid pull request reference format: ${sourceBranch}`);
+        }
       } else {
         // For regular branches, use the standard format
         diffCommand = [
