@@ -20,7 +20,7 @@
     "minimatch": "^10.0.3"
   },
   "devDependencies": {
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.0.7",
     "@types/jest": "^30.0.0",
     "jest": "^30.0.2",
     "typescript": "^5.0.0",
