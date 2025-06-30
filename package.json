@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/node": "^24.0.3",
     "@types/jest": "^30.0.0",
-    "jest": "^30.0.2",
+    "jest": "^30.0.3",
     "typescript": "^5.0.0",
     "ts-jest": "^29.1.0"
   },
