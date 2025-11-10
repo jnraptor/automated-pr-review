@@ -16,7 +16,7 @@
   "dependencies": {
     "@anthropic-ai/claude-code": "^1.0.31",
     "axios": "^1.6.0",
-    "simple-git": "^3.20.0",
+    "simple-git": "^3.30.0",
     "minimatch": "^10.0.3"
   },
   "devDependencies": {
